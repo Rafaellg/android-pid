@@ -1,11 +1,13 @@
 package com.rafaelguimas.pid;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
@@ -19,20 +21,22 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.opencv.android.Utils;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import static android.app.Activity.RESULT_OK;
 import static com.rafaelguimas.pid.OperationFragment.RESULT_LOAD_IMAGE_1;
+import static org.opencv.core.Core.randn;
 
 public class FilterFragment extends Fragment {
 
-    private Bitmap imgImage1;
-    private Mat matImage1, matImage2, matResult = new Mat();
-
-    ImageView img1, img2, imgResult;
     private static int RESULT_LOAD_IMG = 1;
+
+    private Mat matImageOriginal = new Mat(), matImageGaussian = new Mat(), matImageSalt = new Mat(), matResultGaussian = new Mat(), matResultSalt = new Mat();
+
+    private ImageView imgImageGaussian, imgImageSalt, imgImageResult1, imgImageResult2;
 
 
     public FilterFragment() {
@@ -50,15 +54,16 @@ public class FilterFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_filter, container, false);
 
         //link dos objetos da tela
-        Button btnImage = (Button) view.findViewById(R.id.btnImage);
-        Button btnFiltro = (Button) view.findViewById(R.id.btnFiltro);
-        img1 = (ImageView) view.findViewById(R.id.img1);
-        img2 = (ImageView) view.findViewById(R.id.img2);
-        imgResult = (ImageView) view.findViewById(R.id.imgResult);
+        Button btnSelectImage = (Button) view.findViewById(R.id.btnSelectImage);
+        Button btnFiltro = (Button) view.findViewById(R.id.btnFilter);
+        imgImageGaussian = (ImageView) view.findViewById(R.id.img1);
+        imgImageSalt = (ImageView) view.findViewById(R.id.img2);
+        imgImageResult1 = (ImageView) view.findViewById(R.id.imgResult1);
+        imgImageResult2 = (ImageView) view.findViewById(R.id.imgResult2);
         final TextView txtResult = (TextView) view.findViewById(R.id.txtResult);
 
         //click dos botoes mais funcionalidades
-        btnImage.setOnClickListener(new View.OnClickListener() {
+        btnSelectImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) { // pega imagem da galeria
                 Intent galleryIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -76,26 +81,58 @@ public class FilterFragment extends Fragment {
                         .setItems(items, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
+                                Mat kernel = new Mat(3,3, CvType.CV_32F){
+                                    {
+                                        put(0,0,-1);
+                                        put(0,1,0);
+                                        put(0,2,1);
+
+                                        put(1,0-2);
+                                        put(1,1,0);
+                                        put(1,2,2);
+
+                                        put(2,0,-1);
+                                        put(2,1,0);
+                                        put(2,2,1);
+                                    }
+                                };
+
                                 if(which == 0){
-                                    //metodo 1
+                                    Imgproc.blur(matImageGaussian, matResultGaussian, new Size(15,15));
+                                    Imgproc.blur(matImageSalt, matResultSalt, new Size(15,15));
                                 } else if (which == 1 ){
-                                    //metodo 2
+                                    Imgproc.medianBlur(matImageGaussian, matResultGaussian, 15);
+                                    Imgproc.medianBlur(matImageSalt, matResultSalt, 15);
                                 } else if (which == 2){
-                                    //metoto
+                                    Imgproc.GaussianBlur(matImageGaussian, matResultGaussian, new Size(15,15), 0);
+                                    Imgproc.GaussianBlur(matImageSalt, matResultSalt, new Size(15,15), 0);
                                 } else if (which == 3){
-                                    //metodo 4
+                                    Imgproc.filter2D(matImageGaussian, matResultGaussian, -1, kernel);
+                                    Imgproc.filter2D(matImageSalt, matResultSalt, -1, kernel);
                                 } else if (which == 4){
-                                    //metodo 5
+                                    Imgproc.dilate(matImageGaussian, matResultGaussian, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(15,15)));
+                                    Imgproc.dilate(matImageSalt, matResultSalt, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(15,15)));
                                 } else if (which == 5) {
-                                    //metodo 6
+                                    Imgproc.erode(matImageGaussian, matResultGaussian, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(15,15)));
+                                    Imgproc.erode(matImageSalt, matResultSalt, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(15,15)));
                                 }
 
+                                // Reconverte a matriz binaria para bitmap
+                                Bitmap bitmapImageResult1 = Bitmap.createBitmap(matResultGaussian.cols(), matResultGaussian.rows(), Bitmap.Config.ARGB_8888);
+                                Bitmap bitmapImageResult2 = Bitmap.createBitmap(matResultSalt.cols(), matResultSalt.rows(), Bitmap.Config.ARGB_8888);
+
+                                // Transforma matrizes em bitmaps
+                                Utils.matToBitmap(matResultGaussian, bitmapImageResult1);
+                                Utils.matToBitmap(matResultSalt, bitmapImageResult2);
+
+                                // Exibe os bitmaps com filtro
+                                imgImageResult1.setImageBitmap(bitmapImageResult1);
+                                imgImageResult2.setImageBitmap(bitmapImageResult2);
+
                                 // Exibe o nome do filtro
-                                String resultText = "Resultado - " + items[which];
+                                String resultText = "Resultados - " + items[which];
                                 txtResult.setText(resultText);
-
-
-                            } //on click
+                            }
 
                         })
                         .show();
@@ -104,66 +141,130 @@ public class FilterFragment extends Fragment {
         });
 
         return view;
-    }// on create
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        // Codigo comum pras duas imagens
-        String picturePath = "";
         if (resultCode == RESULT_OK && null != data) {
+            // Recupera o caminho da imagem selecionada
             Uri selectedImage = data.getData();
-            String[] filePathColumn = { MediaStore.Images.Media.DATA };
-            Cursor cursor = getActivity().getContentResolver().query(selectedImage,filePathColumn, null, null, null);
+            String[] filePathColumn = {MediaStore.Images.Media.DATA};
+            Cursor cursor = getActivity().getContentResolver().query(selectedImage, filePathColumn, null, null, null);
             cursor.moveToFirst();
             int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-            picturePath = cursor.getString(columnIndex);
+            String picturePath = cursor.getString(columnIndex);
             cursor.close();
+
+            // Verifica qual das duas imagem foi selecionada
+            if (requestCode == RESULT_LOAD_IMAGE_1) {
+                // Cria e exibe o bitmap com a imagem selecionada
+                final Bitmap bitmapImageGaussian = BitmapFactory.decodeFile(picturePath);
+                final Bitmap bitmapImageSalt = BitmapFactory.decodeFile(picturePath);
+
+                // Cria a matriz do bitmap criado
+                Utils.bitmapToMat(bitmapImageGaussian, matImageOriginal);
+
+                // Cria dialog de processando
+                final ProgressDialog progressDialog = new ProgressDialog(getContext());
+                progressDialog.setMessage("Processando ruídos");
+                progressDialog.setCancelable(false);
+
+                // Task para calcular os ruidos no background
+                AsyncTask taskNoise = new AsyncTask() {
+                    @Override
+                    protected void onPreExecute() {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                // Exibe dialog
+                                progressDialog.show();
+                            }
+                        });
+                    }
+
+                    @Override
+                    protected Object doInBackground(Object[] params) {
+                        // Aplica os ruidos
+                        noiseGaussian();
+                        noiseSaltAndPepper();
+
+                        return null;
+                    }
+
+                    @Override
+                    protected void onPostExecute(Object o) {
+                        // Reconverte a matriz binaria para bitmap
+                        Utils.matToBitmap(matImageGaussian, bitmapImageGaussian);
+                        Utils.matToBitmap(matImageSalt, bitmapImageSalt);
+
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                // Exibe os bitmaps dos ruidos
+                                imgImageGaussian.setImageBitmap(bitmapImageGaussian);
+                                imgImageSalt.setImageBitmap(bitmapImageSalt);
+
+                                // Esconde dialog
+                                progressDialog.dismiss();
+                            }
+                        });
+                    }
+                };
+                taskNoise.execute();
+            }
         }
-
-        if (requestCode == RESULT_LOAD_IMAGE_1) {
-            imgImage1 = BitmapFactory.decodeFile(picturePath);
-            Mat mat = new Mat(), matResult = new Mat();
-            Utils.bitmapToMat(imgImage1,mat);
-            Imgproc.GaussianBlur(mat, matResult, new Size(45,45), 0);
-            Utils.matToBitmap(matResult, imgImage1);
-            img1.setImageBitmap(imgImage1);
-            img2.setImageBitmap(imgImage1);
-        }
-
-
     }
 
-//
-//    public void filtros(int filtro){
-//        // Cria as matrizes com os drawables
-//        try {
-//            matImage1 = Utils.loadResource(getContext(), R.drawable.lena_gray);
-//            matImage2 = Utils.loadResource(getContext(), R.drawable.lena_gray_dot);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        // Converte mat para bitmap
-//        Bitmap bitmapImage1 = Bitmap.createBitmap(matImage1.cols(), matImage1.rows(), Bitmap.Config.ARGB_8888);
-//        Bitmap bitmapImage2 = Bitmap.createBitmap(matImage2.cols(), matImage2.rows(), Bitmap.Config.ARGB_8888);
-//        Bitmap bitmapImageResult = Bitmap.createBitmap(matResult.cols(), matResult.rows(), Bitmap.Config.ARGB_8888);
-//        Utils.matToBitmap(matImage1, bitmapImage1);
-//        Utils.matToBitmap(matImage2, bitmapImage2);
-//        Utils.matToBitmap(matResult, bitmapImageResult);
-//
-//        if(filtro == 3 ){ //gaussiano
-//            Mat matResult = new Mat(matImage1.rows(),matImage1.cols(),matImage1.type());
-//            matImage1.copyTo(matResult);
-//            Imgproc.GaussianBlur(matImage1, matResult,new Size(45,45), 0);
-//
-//            imgResult.setImageBitmap(bitmapImageResult);
-//
-//        } //if
-//
-//    }
+    public void noiseGaussian() {
+        // Copia a matriz original para a matriz do ruido gaussiano
+        matImageGaussian = matImageOriginal.clone();
 
+        // Cria matriz de ruido gaussiano
+        Mat matNoiseGaussian = new Mat(matImageGaussian.size(), matImageGaussian.type());
+        randn(matNoiseGaussian,0,50);
 
+        // Aplica o ruido na matriz principal
+        for(int m = 0; m < matImageGaussian.rows(); m++){
+            for(int n = 0; n < matImageGaussian.cols(); n++){
+                double[] val = new double[matImageGaussian.get(m,n).length];
+                for(int i = 0; i < matImageGaussian.get(m,n).length; i++){
+                    val[i] = matImageGaussian.get(m,n)[i] + matNoiseGaussian.get(m, n)[i];
+                }
+                matImageGaussian.put(m, n, val);
+            }
+        }
+    }
+
+    public void noiseSaltAndPepper() {
+        // Copia a matriz original para a matriz do ruido gaussiano
+        matImageSalt = matImageOriginal.clone();
+
+        // Cria matriz de ruido sal e pimenta
+        Mat matNoiseSalt = new Mat(matImageGaussian.size(), matImageGaussian.type());
+        randn(matNoiseSalt,0,255);
+
+        // Aplica o ruido na matriz principal
+        // Substitui valores pequenos por 0 e altos por 255
+        for(int m = 0; m < matImageSalt.rows(); m++){
+            for(int n = 0; n < matImageSalt.cols(); n++){
+                double[] val = new double[matImageSalt.get(m,n).length];
+                if(matNoiseSalt.get(m,n)[0] < 15 && matNoiseSalt.get(m,n)[1] < 15 && matNoiseSalt.get(m,n)[2] < 15){
+                    for(int i = 0; i < matImageSalt.get(m,n).length; i++){
+                        val[i] = 0;
+                    }
+                    matImageSalt.put(m, n, val);
+                }
+                if(matNoiseSalt.get(m,n)[0] > 230 && matNoiseSalt.get(m,n)[1] > 230 && matNoiseSalt.get(m,n)[2] > 230){
+                    for(int i = 0; i < matImageSalt.get(m,n).length; i++){
+                        val[i] = 255;
+                    }
+                    matImageSalt.put(m, n, val);
+                }
+            }
+        }
+    }
 
 }
 

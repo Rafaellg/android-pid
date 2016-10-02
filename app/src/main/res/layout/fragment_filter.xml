@@ -1,132 +1,115 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:id="@+id/activity_main"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+tools:context="com.rafaelguimas.pid.FilterFragment"
+android:padding="8dp"
+android:orientation="vertical">
+
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.rafaelguimas.pid.FilterFragment">
+    android:orientation="vertical"
+    android:gravity="center">
 
-    <!-- TODO: Update blank fragment layout -->
-
-    <ScrollView
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    </ScrollView>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" />
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:layout_marginTop="200dp"
-        android:id="@+id/botões">
-
-        <Button
-    android:text="Selecionar Imagem"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:id="@+id/btnImage"
-            android:layout_marginBottom="-5dp" />
-
-        <Button
-            android:text="Selecionar Filtro"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/btnFiltro" />
-
-        <TextView
-            android:text="Resultados"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/txtResult"
-            android:gravity="center" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="5dp"
-        android:id="@+id/filtros">
-
         <TextView
             android:text="Gaussiano"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/txtGaussiano"
-            android:layout_weight="1"
-            android:textAllCaps="false"
-            android:textSize="14sp"
-            android:gravity="center" />
+            android:id="@+id/textView"
+            android:layout_marginBottom="8dp"
+            android:layout_weight="1" />
 
         <TextView
             android:text="Sal e Pimenta"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/txtSaltPepper"
-            android:layout_weight="1"
-            android:layout_marginLeft="25dp"
-            android:textSize="14sp"
-            android:gravity="center" />
-
+            android:id="@+id/textView2"
+            android:layout_weight="1" />
     </LinearLayout>
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="185dp"
-        android:layout_marginTop="20dp"
-        android:id="@+id/imagens">
+        android:layout_height="185dp">
 
         <ImageView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/img_default"
-            android:layout_weight="1"
             android:id="@+id/img1"
-            android:padding="5dp"
-            android:layout_marginLeft="4dp" />
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:srcCompat="@drawable/img_default"
             android:layout_weight="1"
-            android:id="@+id/img2"
-            android:padding="5dp"
+            app:srcCompat="@drawable/img_default"
             android:layout_marginRight="4dp" />
 
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/img2"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/img_default"
+            android:layout_marginLeft="4dp" />
     </LinearLayout>
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="300dp"
-        android:id="@+id/resultado">
+        android:layout_height="wrap_content">
 
-        <ImageView
-            android:layout_width="match_parent"
+        <Button
+            android:text="Selecionar Imagem"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/img_default"
-            android:id="@+id/imageView4"
-            android:layout_weight="1"
-            android:padding="10dp" />
-
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:srcCompat="@drawable/img_default"
-            android:id="@+id/img3_result"
-            android:padding="10dp"
+            android:id="@+id/btnSelectImage"
             android:layout_weight="1" />
 
     </LinearLayout>
 
-</FrameLayout>
+    <Button
+        android:text="Selecionar Filtros"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnFilter" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/txtResult"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="16dp"
+        android:text="Resultados" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="185dp">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/imgResult1"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/img_default"
+            android:layout_marginRight="4dp" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/imgResult2"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/img_default"
+            android:layout_marginLeft="4dp" />
+    </LinearLayout>
+
+</LinearLayout>
+
+</ScrollView>
+
+
