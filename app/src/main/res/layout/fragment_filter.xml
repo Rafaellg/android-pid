@@ -1,13 +1,123 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.rafaelguimas.pid.FilterFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_weight="1"
+        android:layout_marginTop="200dp"
+        android:id="@+id/botões">
+
+        <Button
+    android:text="Selecionar Imagem"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/btnImage"
+            android:layout_marginBottom="-5dp" />
+
+        <Button
+            android:text="Selecionar Filtro"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnFiltro" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="5dp"
+        android:id="@+id/filtros">
+
+        <TextView
+            android:text="Gaussiano"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtGaussiano"
+            android:layout_weight="1"
+            android:textAllCaps="false"
+            android:textSize="14sp"
+            android:gravity="center" />
+
+        <TextView
+            android:text="Sal e Pimenta"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtSaltPepper"
+            android:layout_weight="1"
+            android:layout_marginLeft="25dp"
+            android:textSize="14sp"
+            android:gravity="center" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="185dp"
+        android:layout_marginTop="20dp"
+        android:id="@+id/imagens">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/img_default"
+            android:layout_weight="1"
+            android:id="@+id/img1"
+            android:padding="5dp"
+            android:layout_marginLeft="4dp" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/img_default"
+            android:layout_weight="1"
+            android:id="@+id/img2"
+            android:padding="5dp"
+            android:layout_marginRight="4dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="300dp"
+        android:id="@+id/resultado">
+
+        <TextView
+            android:text="Resultado"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtResult"
+            android:gravity="center" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/img_default"
+            android:id="@+id/img3_result"
+            android:padding="10dp" />
+
+    </LinearLayout>
 
 </FrameLayout>
