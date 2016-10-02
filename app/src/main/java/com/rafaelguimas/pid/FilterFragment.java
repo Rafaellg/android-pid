@@ -20,8 +20,8 @@ import android.widget.TextView;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
-
-import java.io.IOException;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
 
 import static android.app.Activity.RESULT_OK;
 import static com.rafaelguimas.pid.OperationFragment.RESULT_LOAD_IMAGE_1;
@@ -81,7 +81,7 @@ public class FilterFragment extends Fragment {
                                 } else if (which == 1 ){
                                     //metodo 2
                                 } else if (which == 2){
-                                    //metodo 3
+                                    //metoto
                                 } else if (which == 3){
                                     //metodo 4
                                 } else if (which == 4){
@@ -124,6 +124,10 @@ public class FilterFragment extends Fragment {
 
         if (requestCode == RESULT_LOAD_IMAGE_1) {
             imgImage1 = BitmapFactory.decodeFile(picturePath);
+            Mat mat = new Mat(), matResult = new Mat();
+            Utils.bitmapToMat(imgImage1,mat);
+            Imgproc.GaussianBlur(mat, matResult, new Size(45,45), 0);
+            Utils.matToBitmap(matResult, imgImage1);
             img1.setImageBitmap(imgImage1);
             img2.setImageBitmap(imgImage1);
         }
@@ -131,27 +135,33 @@ public class FilterFragment extends Fragment {
 
     }
 
-    public void setImage(){
-
-    }
-
-    public void filtros(int filtro){
-
-        // Cria as matrizes com os drawables
-        try {
-            matImage1 = Utils.loadResource(getContext(), R.drawable.lena_gray);
-            matImage2 = Utils.loadResource(getContext(), R.drawable.lena_gray_dot);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // Converte mat para bitmap
-        Bitmap bitmapImage1 = Bitmap.createBitmap(matImage1.cols(), matImage1.rows(), Bitmap.Config.ARGB_8888);
-        Bitmap bitmapImage2 = Bitmap.createBitmap(matImage2.cols(), matImage2.rows(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(matImage1, bitmapImage1);
-        Utils.matToBitmap(matImage2, bitmapImage2);
-
-    }
+//
+//    public void filtros(int filtro){
+//        // Cria as matrizes com os drawables
+//        try {
+//            matImage1 = Utils.loadResource(getContext(), R.drawable.lena_gray);
+//            matImage2 = Utils.loadResource(getContext(), R.drawable.lena_gray_dot);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        // Converte mat para bitmap
+//        Bitmap bitmapImage1 = Bitmap.createBitmap(matImage1.cols(), matImage1.rows(), Bitmap.Config.ARGB_8888);
+//        Bitmap bitmapImage2 = Bitmap.createBitmap(matImage2.cols(), matImage2.rows(), Bitmap.Config.ARGB_8888);
+//        Bitmap bitmapImageResult = Bitmap.createBitmap(matResult.cols(), matResult.rows(), Bitmap.Config.ARGB_8888);
+//        Utils.matToBitmap(matImage1, bitmapImage1);
+//        Utils.matToBitmap(matImage2, bitmapImage2);
+//        Utils.matToBitmap(matResult, bitmapImageResult);
+//
+//        if(filtro == 3 ){ //gaussiano
+//            Mat matResult = new Mat(matImage1.rows(),matImage1.cols(),matImage1.type());
+//            matImage1.copyTo(matResult);
+//            Imgproc.GaussianBlur(matImage1, matResult,new Size(45,45), 0);
+//
+//            imgResult.setImageBitmap(bitmapImageResult);
+//
+//        } //if
+//
+//    }
 
 
 

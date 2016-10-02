@@ -39,6 +39,13 @@
             android:layout_height="wrap_content"
             android:id="@+id/btnFiltro" />
 
+        <TextView
+            android:text="Resultados"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtResult"
+            android:gravity="center" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -98,25 +105,27 @@
     </LinearLayout>
 
     <LinearLayout
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="300dp"
         android:id="@+id/resultado">
 
-        <TextView
-            android:text="Resultado"
+        <ImageView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/txtResult"
-            android:gravity="center" />
+            app:srcCompat="@drawable/img_default"
+            android:id="@+id/imageView4"
+            android:layout_weight="1"
+            android:padding="10dp" />
 
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:srcCompat="@drawable/img_default"
             android:id="@+id/img3_result"
-            android:padding="10dp" />
+            android:padding="10dp"
+            android:layout_weight="1" />
 
     </LinearLayout>
 
