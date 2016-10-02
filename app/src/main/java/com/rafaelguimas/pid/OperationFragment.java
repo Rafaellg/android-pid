@@ -89,10 +89,12 @@ public class OperationFragment extends Fragment {
                         .setItems(items, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                if (bitmapImage1 == null || bitmapImage2 == null) {
+                                if (bitmapImage1 == null || bitmapImage2 == null ||
+                                        matImage1.size().height != matImage2.size().height ||
+                                        matImage1.size().width != matImage2.size().width) {
                                     new AlertDialog.Builder(getContext())
                                             .setTitle("Atenção")
-                                            .setMessage("Você precisa selecionar duas imagens para executar a operação")
+                                            .setMessage("Você precisa selecionar duas imagens de mesma resolucao para executar a operação")
                                             .setNeutralButton("OK", null)
                                             .show();
                                 } else {
@@ -135,40 +137,49 @@ public class OperationFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        // Recupera o caminho da imagem selecionada (Codigo comum pras duas imagens)
-        String picturePath = "";
         if (resultCode == RESULT_OK && null != data) {
+            // Recupera o caminho da imagem selecionada
             Uri selectedImage = data.getData();
             String[] filePathColumn = { MediaStore.Images.Media.DATA };
             Cursor cursor = getActivity().getContentResolver().query(selectedImage,filePathColumn, null, null, null);
             cursor.moveToFirst();
             int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-            picturePath = cursor.getString(columnIndex);
+            String picturePath = cursor.getString(columnIndex);
             cursor.close();
-        }
 
-        // Verifica qual das duas imagem foi selecionada
-        if (requestCode == RESULT_LOAD_IMAGE_1) {
-            // Cria e exibe o bitmap com a imagem selecionada
-            bitmapImage1 = BitmapFactory.decodeFile(picturePath);
-            imgImage1.setImageBitmap(bitmapImage1);
+            // Verifica qual das duas imagem foi selecionada
+            if (requestCode == RESULT_LOAD_IMAGE_1) {
+                // Cria e exibe o bitmap com a imagem selecionada
+                bitmapImage1 = BitmapFactory.decodeFile(picturePath);
 
-            // Cria a matriz do bitmap criado
-            Utils.bitmapToMat(bitmapImage1, matImage1);
+                // Cria a matriz do bitmap criado
+                Utils.bitmapToMat(bitmapImage1, matImage1);
 
-            // Transforma a imagem em escala de cinza
-            Imgproc.cvtColor(matImage1, matImage1, Imgproc.COLOR_RGB2GRAY);
+                // Transforma a imagem em escala de cinza
+                Imgproc.cvtColor(matImage1, matImage1, Imgproc.COLOR_RGB2GRAY);
 
-        } else if (requestCode == RESULT_LOAD_IMAGE_2) {
-            // Cria e exibe o bitmap com a imagem selecionada
-            bitmapImage2 = BitmapFactory.decodeFile(picturePath);
-            imgImage2.setImageBitmap(bitmapImage2);
+                // Reconverte a matriz binaria para bitmap
+                Utils.matToBitmap(matImage1, bitmapImage1);
 
-            // Cria a matriz do bitmap criado
-            Utils.bitmapToMat(bitmapImage2, matImage2);
+                // Exibe o bitmap binario
+                imgImage1.setImageBitmap(bitmapImage1);
 
-            // Transforma a imagem em escala de cinza
-            Imgproc.cvtColor(matImage2, matImage2, Imgproc.COLOR_RGB2GRAY);
+            } else if (requestCode == RESULT_LOAD_IMAGE_2) {
+                // Cria o bitmap com a imagem selecionada
+                bitmapImage2 = BitmapFactory.decodeFile(picturePath);
+
+                // Cria a matriz do bitmap criado
+                Utils.bitmapToMat(bitmapImage2, matImage2);
+
+                // Transforma a imagem em escala de cinza
+                Imgproc.cvtColor(matImage2, matImage2, Imgproc.COLOR_RGB2GRAY);
+
+                // Reconverte a matriz binaria para bitmap
+                Utils.matToBitmap(matImage2, bitmapImage2);
+
+                // Exibe o bitmap binario
+                imgImage2.setImageBitmap(bitmapImage2);
+            }
         }
     }
 
