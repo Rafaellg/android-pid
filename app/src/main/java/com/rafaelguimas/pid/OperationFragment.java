@@ -1,6 +1,7 @@
 package com.rafaelguimas.pid;
 
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -10,11 +11,13 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.opencv.android.Utils;
@@ -31,9 +34,9 @@ public class OperationFragment extends Fragment {
     public static int RESULT_LOAD_IMAGE_2 = 2;
 
     private Bitmap img1, img2;
-    private Mat mat1, mat2, mat3;
+    private Mat matImage1, matImage2, matResult = new Mat();
 
-    private ImageView iv, iv2, iv3;
+    private ImageView imgImage1, imgImage2, iv3;
 
     public OperationFragment() {
         // Required empty public constructor
@@ -50,12 +53,13 @@ public class OperationFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_operation, container, false);
 
         // Objetos da tela
-        iv = (ImageView) view.findViewById(R.id.img1);
-        iv2 = (ImageView) view.findViewById(R.id.img2);
-        iv3 = (ImageView) view.findViewById(R.id.img3);
+        imgImage1 = (ImageView) view.findViewById(R.id.img1);
+        imgImage2 = (ImageView) view.findViewById(R.id.img2);
+        iv3 = (ImageView) view.findViewById(R.id.imgResult);
         Button btnSelect1 = (Button) view.findViewById(R.id.btnSelect1);
         Button btnSelect2 = (Button) view.findViewById(R.id.btnSelect2);
         Button btnOperation = (Button) view.findViewById(R.id.btnOperation);
+        final TextView txtResult = (TextView) view.findViewById(R.id.txtResult);
 
         btnSelect1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,40 +82,60 @@ public class OperationFragment extends Fragment {
 
         // Cria as matrizes com os drawables
         try {
-            mat1 = Utils.loadResource(getContext(), R.drawable.lena_gray);
-            mat2 = Utils.loadResource(getContext(), R.drawable.lena_gray_dot);
-            mat3 = Utils.loadResource(getContext(), R.drawable.lena_gray);
+            matImage1 = Utils.loadResource(getContext(), R.drawable.lena_gray);
+            matImage2 = Utils.loadResource(getContext(), R.drawable.lena_gray_dot);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         // Converte mat para bitmap
-        Bitmap bm1 = Bitmap.createBitmap(mat1.cols(), mat1.rows(), Bitmap.Config.ARGB_8888);
-        Bitmap bm2 = Bitmap.createBitmap(mat2.cols(), mat2.rows(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(mat1, bm1);
-        Utils.matToBitmap(mat2, bm2);
+        Bitmap bitmapImage1 = Bitmap.createBitmap(matImage1.cols(), matImage1.rows(), Bitmap.Config.ARGB_8888);
+        Bitmap bitmapImage2 = Bitmap.createBitmap(matImage2.cols(), matImage2.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(matImage1, bitmapImage1);
+        Utils.matToBitmap(matImage2, bitmapImage2);
 
         // Exibe as imagens de entrada
-        iv.setImageBitmap(bm1);
-        iv2.setImageBitmap(bm2);
+        imgImage1.setImageBitmap(bitmapImage1);
+        imgImage2.setImageBitmap(bitmapImage2);
 
         // Clique do botao de operacao
         btnOperation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Executa operacoes com as matrizes
-//                Imgproc.cvtColor(mat1, mat1, Imgproc.COLOR_BGR2GRAY);
-                Core.bitwise_xor(mat3, mat2, mat3);
+                final String items[] = new String[] {"AND", "OR", "XOR", "NOT"};
 
-                // Converte o resultado para bm
-                Bitmap bm3 = Bitmap.createBitmap(mat3.cols(), mat3.rows(), Bitmap.Config.ARGB_8888);
-                Utils.matToBitmap(mat3, bm3);
+                new AlertDialog.Builder(getContext())
+                        .setItems(items, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // Copia a matriz da imagem um
+                                matImage1.copyTo(matResult);
 
-                // Exibe a imagem do resultado
-                iv3.setImageBitmap(bm3);
+                                // Executa a operacao selecionada
+                                if (which == 0) {
+                                    Core.bitwise_and(matImage1, matImage2, matResult);
+                                } else if (which == 1) {
+                                    Core.bitwise_or(matImage1, matImage2, matResult);
+                                } else if (which == 2) {
+                                    Core.bitwise_xor(matImage1, matImage2, matResult);
+                                } else if (which == 3) {
+                                    Core.bitwise_not(matImage1, matResult);
+                                }
 
-                // Alerta do que deve ser desenvolvido
-                Toast.makeText(getContext(), "Abre o dialog e seleciona operacao (padrão: xor)", Toast.LENGTH_LONG).show();
+                                // Exibe o nome da operacao
+                                String resultText = "Resultado - " + items[which];
+                                txtResult.setText(resultText);
+
+                                // Converte o resultado para bm
+                                Bitmap bitmapImageResult = Bitmap.createBitmap(matResult.cols(), matResult.rows(), Bitmap.Config.ARGB_8888);
+                                Utils.matToBitmap(matResult, bitmapImageResult);
+
+                                // Exibe a imagem do resultado
+                                iv3.setImageBitmap(bitmapImageResult);
+                            }
+                        })
+                        .setTitle("Operações")
+                        .show();
             }
         });
         
@@ -136,10 +160,10 @@ public class OperationFragment extends Fragment {
 
         if (requestCode == RESULT_LOAD_IMAGE_1) {
             img1 = BitmapFactory.decodeFile(picturePath);
-            iv.setImageBitmap(img1);
+            imgImage1.setImageBitmap(img1);
         } else if (requestCode == RESULT_LOAD_IMAGE_2) {
             img2 = BitmapFactory.decodeFile(picturePath);
-            iv2.setImageBitmap(img2);
+            imgImage2.setImageBitmap(img2);
         }
     }
 

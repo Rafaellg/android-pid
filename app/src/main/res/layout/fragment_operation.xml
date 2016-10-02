@@ -12,7 +12,8 @@ android:orientation="vertical">
 <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:gravity="center">
 
     <TextView
         android:text="Entrada"
@@ -27,19 +28,19 @@ android:orientation="vertical">
         android:layout_height="185dp">
 
         <ImageView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/img1"
             android:layout_weight="1"
-            app:srcCompat="@drawable/lena"
+            app:srcCompat="@drawable/img_default"
             android:layout_marginRight="4dp" />
 
         <ImageView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/img2"
             android:layout_weight="1"
-            app:srcCompat="@drawable/lena"
+            app:srcCompat="@drawable/img_default"
             android:layout_marginLeft="4dp" />
     </LinearLayout>
 
@@ -70,17 +71,18 @@ android:orientation="vertical">
         android:id="@+id/btnOperation" />
 
     <TextView
-        android:text="Resultado"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textView2"
+        android:id="@+id/txtResult"
         android:layout_marginBottom="8dp"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="16dp"
+        android:text="Resultado" />
 
     <ImageView
-        android:id="@+id/img3"
+        android:id="@+id/imgResult"
         android:layout_height="185dp"
-        android:layout_width="185dp" />
+        android:layout_width="185dp"
+        app:srcCompat="@drawable/img_default" />
 
 </LinearLayout>
 
