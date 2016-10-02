@@ -6,21 +6,35 @@ android:id="@+id/activity_main"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
 tools:context="com.rafaelguimas.pid.OperationFragment"
-android:padding="8dp"
-android:orientation="vertical">
+    android:orientation="vertical">
 
 <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center">
+    android:gravity="center"
+    android:padding="8dp">
 
-    <TextView
-        android:text="Entrada"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textView"
-        android:layout_marginBottom="8dp" />
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:text="Imagem A"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView"
+            android:layout_marginBottom="8dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:text="Imagem B"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView2"
+            android:layout_weight="1" />
+    </LinearLayout>
 
     <LinearLayout
         android:orientation="horizontal"
@@ -32,7 +46,7 @@ android:orientation="vertical">
             android:layout_height="wrap_content"
             android:id="@+id/img1"
             android:layout_weight="1"
-            app:srcCompat="@drawable/img_default"
+            app:srcCompat="@drawable/img_default_plus"
             android:layout_marginRight="4dp" />
 
         <ImageView
@@ -40,14 +54,15 @@ android:orientation="vertical">
             android:layout_height="wrap_content"
             android:id="@+id/img2"
             android:layout_weight="1"
-            app:srcCompat="@drawable/img_default"
+            app:srcCompat="@drawable/img_default_plus"
             android:layout_marginLeft="4dp" />
     </LinearLayout>
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:visibility="gone">
 
         <Button
             android:text="Selecionar"
@@ -65,18 +80,26 @@ android:orientation="vertical">
     </LinearLayout>
 
     <Button
-        android:text="Operação"
+        android:text="Executar Operação Lógica"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/btnOperation" />
+        android:id="@+id/btnOperationLogical"
+        android:visibility="gone" />
+
+    <Button
+        android:text="Executar Operação Aritmética"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnOperationMath"
+        android:visibility="gone" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/txtResult"
         android:layout_marginBottom="8dp"
-        android:layout_marginTop="16dp"
-        android:text="Resultado" />
+        android:text="Resultado"
+        android:layout_marginTop="32dp" />
 
     <ImageView
         android:id="@+id/imgResult"

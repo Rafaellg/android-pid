@@ -4,26 +4,27 @@
     android:layout_height="match_parent"
     tools:context="com.rafaelguimas.pid.MainFragment"
     android:orientation="vertical"
-    android:gravity="center">
+    android:gravity="center"
+    android:padding="8dp">
 
 
     <TextView
-        android:text="Selecione a ação"
+        android:text="Ir para"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/textView3"
         android:layout_marginBottom="32dp"
-        android:textSize="14sp" />
+        android:textSize="18sp" />
 
     <Button
         android:text="Operações"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/btnOperations" />
+        android:id="@+id/btnOperations"
+        android:layout_height="60dp" />
 
     <Button
         android:text="Filtros"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:id="@+id/btnFilters" />
 </LinearLayout>
