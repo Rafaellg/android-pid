@@ -14,6 +14,9 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -37,6 +40,7 @@ public class FilterFragment extends Fragment {
     private Mat matImageOriginal = new Mat(), matImageGaussian = new Mat(), matImageSalt = new Mat(), matResultGaussian = new Mat(), matResultSalt = new Mat();
 
     private ImageView imgImageGaussian, imgImageSalt, imgImageResult1, imgImageResult2;
+    private TextView txtResult;
 
     public FilterFragment() {
         // Required empty public constructor
@@ -45,6 +49,8 @@ public class FilterFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -59,7 +65,7 @@ public class FilterFragment extends Fragment {
         imgImageSalt = (ImageView) view.findViewById(R.id.img2);
         imgImageResult1 = (ImageView) view.findViewById(R.id.imgResult1);
         imgImageResult2 = (ImageView) view.findViewById(R.id.imgResult2);
-        final TextView txtResult = (TextView) view.findViewById(R.id.txtResult);
+        txtResult = (TextView) view.findViewById(R.id.txtResult);
 
         //click dos botoes mais funcionalidades
         btnSelectImage.setOnClickListener(new View.OnClickListener() {
@@ -73,68 +79,7 @@ public class FilterFragment extends Fragment {
         btnFiltro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String items[] = new String[]{"Media", "Mediana", "Gaussiano", "Moda", "Maximo", "Minimo"};
-
-                new AlertDialog.Builder(getContext())
-                        .setTitle("Filtros")
-                        .setItems(items, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Mat kernel = new Mat(3,3, CvType.CV_32F){
-                                    {
-                                        put(0,0,-1);
-                                        put(0,1,0);
-                                        put(0,2,1);
-
-                                        put(1,0-2);
-                                        put(1,1,0);
-                                        put(1,2,2);
-
-                                        put(2,0,-1);
-                                        put(2,1,0);
-                                        put(2,2,1);
-                                    }
-                                };
-
-                                if(which == 0){
-                                    Imgproc.blur(matImageGaussian, matResultGaussian, new Size(15,15));
-                                    Imgproc.blur(matImageSalt, matResultSalt, new Size(15,15));
-                                } else if (which == 1 ){
-                                    Imgproc.medianBlur(matImageGaussian, matResultGaussian, 15);
-                                    Imgproc.medianBlur(matImageSalt, matResultSalt, 15);
-                                } else if (which == 2){
-                                    Imgproc.GaussianBlur(matImageGaussian, matResultGaussian, new Size(15,15), 0);
-                                    Imgproc.GaussianBlur(matImageSalt, matResultSalt, new Size(15,15), 0);
-                                } else if (which == 3){
-                                    Imgproc.filter2D(matImageGaussian, matResultGaussian, -1, kernel);
-                                    Imgproc.filter2D(matImageSalt, matResultSalt, -1, kernel);
-                                } else if (which == 4){
-                                    Imgproc.dilate(matImageGaussian, matResultGaussian, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(15,15)));
-                                    Imgproc.dilate(matImageSalt, matResultSalt, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(15,15)));
-                                } else if (which == 5) {
-                                    Imgproc.erode(matImageGaussian, matResultGaussian, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(15,15)));
-                                    Imgproc.erode(matImageSalt, matResultSalt, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(15,15)));
-                                }
-
-                                // Reconverte a matriz binaria para bitmap
-                                Bitmap bitmapImageResult1 = Bitmap.createBitmap(matResultGaussian.cols(), matResultGaussian.rows(), Bitmap.Config.ARGB_8888);
-                                Bitmap bitmapImageResult2 = Bitmap.createBitmap(matResultSalt.cols(), matResultSalt.rows(), Bitmap.Config.ARGB_8888);
-
-                                // Transforma matrizes em bitmaps
-                                Utils.matToBitmap(matResultGaussian, bitmapImageResult1);
-                                Utils.matToBitmap(matResultSalt, bitmapImageResult2);
-
-                                // Exibe os bitmaps com filtro
-                                imgImageResult1.setImageBitmap(bitmapImageResult1);
-                                imgImageResult2.setImageBitmap(bitmapImageResult2);
-
-                                // Exibe o nome do filtro
-                                String resultText = "Resultados - " + items[which];
-                                txtResult.setText(resultText);
-                            }
-
-                        })
-                        .show();
+                showFiltersDialog();
             }
 
         });
@@ -224,6 +169,25 @@ public class FilterFragment extends Fragment {
         ((MainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+
+        inflater.inflate(R.menu.menu_filters, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.action_filter:
+                showFiltersDialog();
+                break;
+        }
+
+        return true;
+    }
+
     public void noiseGaussian() {
         // Copia a matriz original para a matriz do ruido gaussiano
         matImageGaussian = matImageOriginal.clone();
@@ -271,6 +235,72 @@ public class FilterFragment extends Fragment {
                 }
             }
         }
+    }
+
+
+    public void showFiltersDialog(){
+        final String items[] = new String[]{"Media", "Mediana", "Gaussiano", "Moda", "Maximo", "Minimo"};
+
+        new AlertDialog.Builder(getContext())
+                .setTitle("Filtros")
+                .setItems(items, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Mat kernel = new Mat(3,3, CvType.CV_32F){
+                            {
+                                put(0,0,-1);
+                                put(0,1,0);
+                                put(0,2,1);
+
+                                put(1,0-2);
+                                put(1,1,0);
+                                put(1,2,2);
+
+                                put(2,0,-1);
+                                put(2,1,0);
+                                put(2,2,1);
+                            }
+                        };
+
+                        if(which == 0){
+                            Imgproc.blur(matImageGaussian, matResultGaussian, new Size(15,15));
+                            Imgproc.blur(matImageSalt, matResultSalt, new Size(15,15));
+                        } else if (which == 1 ){
+                            Imgproc.medianBlur(matImageGaussian, matResultGaussian, 15);
+                            Imgproc.medianBlur(matImageSalt, matResultSalt, 15);
+                        } else if (which == 2){
+                            Imgproc.GaussianBlur(matImageGaussian, matResultGaussian, new Size(15,15), 0);
+                            Imgproc.GaussianBlur(matImageSalt, matResultSalt, new Size(15,15), 0);
+                        } else if (which == 3){
+                            Imgproc.filter2D(matImageGaussian, matResultGaussian, -1, kernel);
+                            Imgproc.filter2D(matImageSalt, matResultSalt, -1, kernel);
+                        } else if (which == 4){
+                            Imgproc.dilate(matImageGaussian, matResultGaussian, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(15,15)));
+                            Imgproc.dilate(matImageSalt, matResultSalt, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(15,15)));
+                        } else if (which == 5) {
+                            Imgproc.erode(matImageGaussian, matResultGaussian, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(15,15)));
+                            Imgproc.erode(matImageSalt, matResultSalt, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(15,15)));
+                        }
+
+                        // Reconverte a matriz binaria para bitmap
+                        Bitmap bitmapImageResult1 = Bitmap.createBitmap(matResultGaussian.cols(), matResultGaussian.rows(), Bitmap.Config.ARGB_8888);
+                        Bitmap bitmapImageResult2 = Bitmap.createBitmap(matResultSalt.cols(), matResultSalt.rows(), Bitmap.Config.ARGB_8888);
+
+                        // Transforma matrizes em bitmaps
+                        Utils.matToBitmap(matResultGaussian, bitmapImageResult1);
+                        Utils.matToBitmap(matResultSalt, bitmapImageResult2);
+
+                        // Exibe os bitmaps com filtro
+                        imgImageResult1.setImageBitmap(bitmapImageResult1);
+                        imgImageResult2.setImageBitmap(bitmapImageResult2);
+
+                        // Exibe o nome do filtro
+                        String resultText = "Resultados - " + items[which];
+                        txtResult.setText(resultText);
+                    }
+
+                })
+                .show();
     }
 
 }

@@ -13,6 +13,9 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -44,6 +47,8 @@ public class OperationFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -61,7 +66,7 @@ public class OperationFragment extends Fragment {
         Button btnOperationMath = (Button) view.findViewById(R.id.btnOperationMath);
         txtResult = (TextView) view.findViewById(R.id.txtResult);
 
-        btnSelect1.setOnClickListener(new View.OnClickListener() {
+        imgImage1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -69,7 +74,7 @@ public class OperationFragment extends Fragment {
             }
         });
 
-        btnSelect2.setOnClickListener(new View.OnClickListener() {
+        imgImage2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -152,6 +157,28 @@ public class OperationFragment extends Fragment {
 
         ((MainActivity) getActivity()).getSupportActionBar().setTitle("Operações");
         ((MainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+
+        inflater.inflate(R.menu.menu_operations, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.action_op_logical:
+                showLogicalOperations();
+                break;
+            case R.id.action_op_math:
+                showMathOperations();
+                break;
+        }
+
+        return true;
     }
 
     public void showLogicalOperations() {
