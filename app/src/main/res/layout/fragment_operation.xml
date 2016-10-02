@@ -65,10 +65,16 @@ android:orientation="vertical">
     </LinearLayout>
 
     <Button
-        android:text="Operação"
+        android:text="Operação Lógica"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/btnOperation" />
+        android:id="@+id/btnOperationLogical" />
+
+    <Button
+        android:text="Operação Aritmética"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnOperationMath" />
 
     <TextView
         android:layout_width="wrap_content"

@@ -38,7 +38,6 @@ public class FilterFragment extends Fragment {
 
     private ImageView imgImageGaussian, imgImageSalt, imgImageResult1, imgImageResult2;
 
-
     public FilterFragment() {
         // Required empty public constructor
     }
@@ -215,6 +214,14 @@ public class FilterFragment extends Fragment {
                 taskNoise.execute();
             }
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        ((MainActivity) getActivity()).getSupportActionBar().setTitle("Filtros");
+        ((MainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     public void noiseGaussian() {

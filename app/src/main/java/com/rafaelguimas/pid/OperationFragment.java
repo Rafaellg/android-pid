@@ -18,15 +18,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
-
-import java.io.IOException;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -39,6 +35,7 @@ public class OperationFragment extends Fragment {
     private Mat matImage1 = new Mat(), matImage2 = new Mat(), matResult = new Mat();
 
     private ImageView imgImage1, imgImage2, imgImageResult;
+    private TextView txtResult;
 
     public OperationFragment() {
         // Required empty public constructor
@@ -60,8 +57,9 @@ public class OperationFragment extends Fragment {
         imgImageResult = (ImageView) view.findViewById(R.id.imgResult);
         Button btnSelect1 = (Button) view.findViewById(R.id.btnSelect1);
         Button btnSelect2 = (Button) view.findViewById(R.id.btnSelect2);
-        Button btnOperation = (Button) view.findViewById(R.id.btnOperation);
-        final TextView txtResult = (TextView) view.findViewById(R.id.txtResult);
+        Button btnOperationLogical = (Button) view.findViewById(R.id.btnOperationLogical);
+        Button btnOperationMath = (Button) view.findViewById(R.id.btnOperationMath);
+        txtResult = (TextView) view.findViewById(R.id.txtResult);
 
         btnSelect1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,54 +77,19 @@ public class OperationFragment extends Fragment {
             }
         });
 
-        // Clique do botao de operacao
-        btnOperation.setOnClickListener(new View.OnClickListener() {
+        // Clique do botao de operacao logica
+        btnOperationLogical.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String items[] = new String[] {"AND", "OR", "XOR", "NOT"};
+                showLogicalOperations();
+            }
+        });
 
-                new AlertDialog.Builder(getContext())
-                        .setItems(items, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (bitmapImage1 == null || bitmapImage2 == null ||
-                                        matImage1.size().height != matImage2.size().height ||
-                                        matImage1.size().width != matImage2.size().width) {
-                                    new AlertDialog.Builder(getContext())
-                                            .setTitle("Atenção")
-                                            .setMessage("Você precisa selecionar duas imagens de mesma resolucao para executar a operação")
-                                            .setNeutralButton("OK", null)
-                                            .show();
-                                } else {
-                                    // Copia a matriz da imagem1 para copiar as proporcoes (linhas x colunas)
-                                    matImage1.copyTo(matResult);
-
-                                    // Executa a operacao selecionada
-                                    if (which == 0) {
-                                        Core.bitwise_and(matImage1, matImage2, matResult);
-                                    } else if (which == 1) {
-                                        Core.bitwise_or(matImage1, matImage2, matResult);
-                                    } else if (which == 2) {
-                                        Core.bitwise_xor(matImage1, matImage2, matResult);
-                                    } else if (which == 3) {
-                                        Core.bitwise_not(matImage1, matResult);
-                                    }
-
-                                    // Exibe o nome da operacao
-                                    String resultText = "Resultado - " + items[which];
-                                    txtResult.setText(resultText);
-
-                                    // Converte o resultado para bm
-                                    Bitmap bitmapImageResult = Bitmap.createBitmap(matResult.cols(), matResult.rows(), Bitmap.Config.ARGB_8888);
-                                    Utils.matToBitmap(matResult, bitmapImageResult);
-
-                                    // Exibe a imagem do resultado
-                                    imgImageResult.setImageBitmap(bitmapImageResult);
-                                }
-                            }
-                        })
-                        .setTitle("Operações")
-                        .show();
+        // Clique do botao de operacao aritmetica
+        btnOperationMath.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showMathOperations();
             }
         });
         
@@ -181,6 +144,108 @@ public class OperationFragment extends Fragment {
                 imgImage2.setImageBitmap(bitmapImage2);
             }
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        ((MainActivity) getActivity()).getSupportActionBar().setTitle("Operações");
+        ((MainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    public void showLogicalOperations() {
+        final String items[] = new String[] {"AND", "OR", "XOR", "NOT"};
+
+        new AlertDialog.Builder(getContext())
+                .setItems(items, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (bitmapImage1 == null || bitmapImage2 == null ||
+                                matImage1.size().height != matImage2.size().height ||
+                                matImage1.size().width != matImage2.size().width) {
+                            new AlertDialog.Builder(getContext())
+                                    .setTitle("Atenção")
+                                    .setMessage("Você precisa selecionar duas imagens de mesma resolucao para executar a operação")
+                                    .setNeutralButton("OK", null)
+                                    .show();
+                        } else {
+                            // Copia a matriz da imagem1 para copiar as proporcoes (linhas x colunas)
+                            matImage1.copyTo(matResult);
+
+                            // Executa a operacao selecionada
+                            if (which == 0) {
+                                Core.bitwise_and(matImage1, matImage2, matResult);
+                            } else if (which == 1) {
+                                Core.bitwise_or(matImage1, matImage2, matResult);
+                            } else if (which == 2) {
+                                Core.bitwise_xor(matImage1, matImage2, matResult);
+                            } else if (which == 3) {
+                                Core.bitwise_not(matImage1, matResult);
+                            }
+
+                            // Exibe o nome da operacao
+                            String resultText = "Resultado - " + items[which];
+                            txtResult.setText(resultText);
+
+                            // Converte o resultado para bm
+                            Bitmap bitmapImageResult = Bitmap.createBitmap(matResult.cols(), matResult.rows(), Bitmap.Config.ARGB_8888);
+                            Utils.matToBitmap(matResult, bitmapImageResult);
+
+                            // Exibe a imagem do resultado
+                            imgImageResult.setImageBitmap(bitmapImageResult);
+                        }
+                    }
+                })
+                .setTitle("Operações")
+                .show();
+    }
+
+    public void showMathOperations() {
+        final String items[] = new String[] {"ADIÇÃO", "SUBTRAÇÃO", "MULTIPLICAÇÃO", "DIVISÃO"};
+
+        new AlertDialog.Builder(getContext())
+                .setItems(items, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (bitmapImage1 == null || bitmapImage2 == null ||
+                                matImage1.size().height != matImage2.size().height ||
+                                matImage1.size().width != matImage2.size().width) {
+                            new AlertDialog.Builder(getContext())
+                                    .setTitle("Atenção")
+                                    .setMessage("Você precisa selecionar duas imagens de mesma resolucao para executar a operação")
+                                    .setNeutralButton("OK", null)
+                                    .show();
+                        } else {
+                            // Copia a matriz da imagem1 para copiar as proporcoes (linhas x colunas)
+                            matImage1.copyTo(matResult);
+
+                            // Executa a operacao selecionada
+                            if (which == 0) {
+                                Core.addWeighted(matImage1, 0.5,matImage2, 0.5, 0.0,matResult);
+                            } else if (which == 1) {
+                                Core.subtract(matImage1, matImage2, matResult);
+                            } else if (which == 2) {
+                                Core.multiply(matImage1, matImage2, matResult);
+                            } else if (which == 3) {
+                                Core.divide(matImage1, matImage2, matResult);
+                            }
+
+                            // Exibe o nome da operacao
+                            String resultText = "Resultado - " + items[which];
+                            txtResult.setText(resultText);
+
+                            // Converte o resultado para bm
+                            Bitmap bitmapImageResult = Bitmap.createBitmap(matResult.cols(), matResult.rows(), Bitmap.Config.ARGB_8888);
+                            Utils.matToBitmap(matResult, bitmapImageResult);
+
+                            // Exibe a imagem do resultado
+                            imgImageResult.setImageBitmap(bitmapImageResult);
+                        }
+                    }
+                })
+                .setTitle("Operações")
+                .show();
     }
 
 }
