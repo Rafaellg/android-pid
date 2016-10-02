@@ -22,7 +22,9 @@ import android.widget.Toast;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
 
 import java.io.IOException;
 
@@ -33,10 +35,10 @@ public class OperationFragment extends Fragment {
     public static int RESULT_LOAD_IMAGE_1 = 1;
     public static int RESULT_LOAD_IMAGE_2 = 2;
 
-    private Bitmap img1, img2;
-    private Mat matImage1, matImage2, matResult = new Mat();
+    private Bitmap bitmapImage1, bitmapImage2;
+    private Mat matImage1 = new Mat(), matImage2 = new Mat(), matResult = new Mat();
 
-    private ImageView imgImage1, imgImage2, iv3;
+    private ImageView imgImage1, imgImage2, imgImageResult;
 
     public OperationFragment() {
         // Required empty public constructor
@@ -55,7 +57,7 @@ public class OperationFragment extends Fragment {
         // Objetos da tela
         imgImage1 = (ImageView) view.findViewById(R.id.img1);
         imgImage2 = (ImageView) view.findViewById(R.id.img2);
-        iv3 = (ImageView) view.findViewById(R.id.imgResult);
+        imgImageResult = (ImageView) view.findViewById(R.id.imgResult);
         Button btnSelect1 = (Button) view.findViewById(R.id.btnSelect1);
         Button btnSelect2 = (Button) view.findViewById(R.id.btnSelect2);
         Button btnOperation = (Button) view.findViewById(R.id.btnOperation);
@@ -77,27 +79,6 @@ public class OperationFragment extends Fragment {
             }
         });
 
-        // Exemplo de criacao de matriz
-//        Mat m = new Mat(100, 400, CvType.CV_8UC3);
-
-        // Cria as matrizes com os drawables
-        try {
-            matImage1 = Utils.loadResource(getContext(), R.drawable.lena_gray);
-            matImage2 = Utils.loadResource(getContext(), R.drawable.lena_gray_dot);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // Converte mat para bitmap
-        Bitmap bitmapImage1 = Bitmap.createBitmap(matImage1.cols(), matImage1.rows(), Bitmap.Config.ARGB_8888);
-        Bitmap bitmapImage2 = Bitmap.createBitmap(matImage2.cols(), matImage2.rows(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(matImage1, bitmapImage1);
-        Utils.matToBitmap(matImage2, bitmapImage2);
-
-        // Exibe as imagens de entrada
-        imgImage1.setImageBitmap(bitmapImage1);
-        imgImage2.setImageBitmap(bitmapImage2);
-
         // Clique do botao de operacao
         btnOperation.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -108,30 +89,38 @@ public class OperationFragment extends Fragment {
                         .setItems(items, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                // Copia a matriz da imagem um
-                                matImage1.copyTo(matResult);
+                                if (bitmapImage1 == null || bitmapImage2 == null) {
+                                    new AlertDialog.Builder(getContext())
+                                            .setTitle("Atenção")
+                                            .setMessage("Você precisa selecionar duas imagens para executar a operação")
+                                            .setNeutralButton("OK", null)
+                                            .show();
+                                } else {
+                                    // Copia a matriz da imagem1 para copiar as proporcoes (linhas x colunas)
+                                    matImage1.copyTo(matResult);
 
-                                // Executa a operacao selecionada
-                                if (which == 0) {
-                                    Core.bitwise_and(matImage1, matImage2, matResult);
-                                } else if (which == 1) {
-                                    Core.bitwise_or(matImage1, matImage2, matResult);
-                                } else if (which == 2) {
-                                    Core.bitwise_xor(matImage1, matImage2, matResult);
-                                } else if (which == 3) {
-                                    Core.bitwise_not(matImage1, matResult);
+                                    // Executa a operacao selecionada
+                                    if (which == 0) {
+                                        Core.bitwise_and(matImage1, matImage2, matResult);
+                                    } else if (which == 1) {
+                                        Core.bitwise_or(matImage1, matImage2, matResult);
+                                    } else if (which == 2) {
+                                        Core.bitwise_xor(matImage1, matImage2, matResult);
+                                    } else if (which == 3) {
+                                        Core.bitwise_not(matImage1, matResult);
+                                    }
+
+                                    // Exibe o nome da operacao
+                                    String resultText = "Resultado - " + items[which];
+                                    txtResult.setText(resultText);
+
+                                    // Converte o resultado para bm
+                                    Bitmap bitmapImageResult = Bitmap.createBitmap(matResult.cols(), matResult.rows(), Bitmap.Config.ARGB_8888);
+                                    Utils.matToBitmap(matResult, bitmapImageResult);
+
+                                    // Exibe a imagem do resultado
+                                    imgImageResult.setImageBitmap(bitmapImageResult);
                                 }
-
-                                // Exibe o nome da operacao
-                                String resultText = "Resultado - " + items[which];
-                                txtResult.setText(resultText);
-
-                                // Converte o resultado para bm
-                                Bitmap bitmapImageResult = Bitmap.createBitmap(matResult.cols(), matResult.rows(), Bitmap.Config.ARGB_8888);
-                                Utils.matToBitmap(matResult, bitmapImageResult);
-
-                                // Exibe a imagem do resultado
-                                iv3.setImageBitmap(bitmapImageResult);
                             }
                         })
                         .setTitle("Operações")
@@ -146,7 +135,7 @@ public class OperationFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        // Codigo comum pras duas imagens
+        // Recupera o caminho da imagem selecionada (Codigo comum pras duas imagens)
         String picturePath = "";
         if (resultCode == RESULT_OK && null != data) {
             Uri selectedImage = data.getData();
@@ -158,12 +147,28 @@ public class OperationFragment extends Fragment {
             cursor.close();
         }
 
+        // Verifica qual das duas imagem foi selecionada
         if (requestCode == RESULT_LOAD_IMAGE_1) {
-            img1 = BitmapFactory.decodeFile(picturePath);
-            imgImage1.setImageBitmap(img1);
+            // Cria e exibe o bitmap com a imagem selecionada
+            bitmapImage1 = BitmapFactory.decodeFile(picturePath);
+            imgImage1.setImageBitmap(bitmapImage1);
+
+            // Cria a matriz do bitmap criado
+            Utils.bitmapToMat(bitmapImage1, matImage1);
+
+            // Transforma a imagem em escala de cinza
+            Imgproc.cvtColor(matImage1, matImage1, Imgproc.COLOR_RGB2GRAY);
+
         } else if (requestCode == RESULT_LOAD_IMAGE_2) {
-            img2 = BitmapFactory.decodeFile(picturePath);
-            imgImage2.setImageBitmap(img2);
+            // Cria e exibe o bitmap com a imagem selecionada
+            bitmapImage2 = BitmapFactory.decodeFile(picturePath);
+            imgImage2.setImageBitmap(bitmapImage2);
+
+            // Cria a matriz do bitmap criado
+            Utils.bitmapToMat(bitmapImage2, matImage2);
+
+            // Transforma a imagem em escala de cinza
+            Imgproc.cvtColor(matImage2, matImage2, Imgproc.COLOR_RGB2GRAY);
         }
     }
 
