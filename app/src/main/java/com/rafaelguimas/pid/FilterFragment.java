@@ -194,6 +194,8 @@ public class FilterFragment extends Fragment {
 
         // Cria matriz de ruido gaussiano
         Mat matNoiseGaussian = new Mat(matImageGaussian.size(), matImageGaussian.type());
+
+        // randn(matriz destino, valor medio, desvio padrao)
         randn(matNoiseGaussian,0,50);
 
         // Aplica o ruido na matriz principal
@@ -236,7 +238,6 @@ public class FilterFragment extends Fragment {
             }
         }
     }
-
 
     public void showFiltersDialog(){
         final String items[] = new String[]{"Media", "Mediana", "Gaussiano", "Moda", "Maximo", "Minimo"};
