@@ -264,23 +264,23 @@ public class FilterFragment extends Fragment {
                         };
 
                         if(which == 0){
-                            Imgproc.blur(matImageGaussian, matResultGaussian, new Size(15,15));
-                            Imgproc.blur(matImageSalt, matResultSalt, new Size(15,15));
+                            Imgproc.blur(matImageGaussian, matResultGaussian, new Size(5,5));
+                            Imgproc.blur(matImageSalt, matResultSalt, new Size(5,5));
                         } else if (which == 1 ){
-                            Imgproc.medianBlur(matImageGaussian, matResultGaussian, 15);
-                            Imgproc.medianBlur(matImageSalt, matResultSalt, 15);
+                            Imgproc.medianBlur(matImageGaussian, matResultGaussian, 5);
+                            Imgproc.medianBlur(matImageSalt, matResultSalt, 5);
                         } else if (which == 2){
-                            Imgproc.GaussianBlur(matImageGaussian, matResultGaussian, new Size(15,15), 0);
-                            Imgproc.GaussianBlur(matImageSalt, matResultSalt, new Size(15,15), 0);
+                            Imgproc.GaussianBlur(matImageGaussian, matResultGaussian, new Size(5,5), 0);
+                            Imgproc.GaussianBlur(matImageSalt, matResultSalt, new Size(5,5), 0);
                         } else if (which == 3){
                             Imgproc.filter2D(matImageGaussian, matResultGaussian, -1, kernel);
                             Imgproc.filter2D(matImageSalt, matResultSalt, -1, kernel);
                         } else if (which == 4){
-                            Imgproc.dilate(matImageGaussian, matResultGaussian, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(15,15)));
-                            Imgproc.dilate(matImageSalt, matResultSalt, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(15,15)));
+                            Imgproc.dilate(matImageGaussian, matResultGaussian, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5,5)));
+                            Imgproc.dilate(matImageSalt, matResultSalt, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5,5)));
                         } else if (which == 5) {
-                            Imgproc.erode(matImageGaussian, matResultGaussian, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(15,15)));
-                            Imgproc.erode(matImageSalt, matResultSalt, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(15,15)));
+                            Imgproc.erode(matImageGaussian, matResultGaussian, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5,5)));
+                            Imgproc.erode(matImageSalt, matResultSalt, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5,5)));
                         }
 
                         // Reconverte a matriz binaria para bitmap
