@@ -24,6 +24,7 @@ import android.widget.TextView;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
@@ -35,7 +36,7 @@ public class OperationFragment extends Fragment {
     public static int RESULT_LOAD_IMAGE_2 = 2;
 
     private Bitmap bitmapImage1, bitmapImage2;
-    private Mat matImage1 = new Mat(), matImage2 = new Mat(), matResult = new Mat();
+    private Mat matImage1BW = new Mat(), matImage2BW = new Mat(), matImage1Normal = new Mat(), matImage2Normal = new Mat(), matResult = new Mat();
 
     private ImageView imgImage1, imgImage2, imgImageResult;
     private TextView txtResult;
@@ -121,15 +122,17 @@ public class OperationFragment extends Fragment {
                 bitmapImage1 = BitmapFactory.decodeFile(picturePath);
 
                 // Cria a matriz do bitmap criado
-                Utils.bitmapToMat(bitmapImage1, matImage1);
+                Utils.bitmapToMat(bitmapImage1, matImage1BW);
+                Utils.bitmapToMat(bitmapImage1, matImage1Normal);
 
                 // Transforma a imagem em escala de cinza
-                Imgproc.cvtColor(matImage1, matImage1, Imgproc.COLOR_RGB2GRAY);
+                Imgproc.cvtColor(matImage1BW, matImage1BW, Imgproc.COLOR_RGB2GRAY);
+                Imgproc.cvtColor(matImage1Normal, matImage1Normal, Imgproc.COLOR_RGB2GRAY);
 
-                // Reconverte a matriz binaria para bitmap
-                Utils.matToBitmap(matImage1, bitmapImage1);
+                // Transforma a matriz para binaria
+                Imgproc.threshold(matImage1BW, matImage1BW, 127, 255, Imgproc.THRESH_BINARY);
 
-                // Exibe o bitmap binario
+                // Exibe o bitmap colorido
                 imgImage1.setImageBitmap(bitmapImage1);
 
             } else if (requestCode == RESULT_LOAD_IMAGE_2) {
@@ -137,13 +140,15 @@ public class OperationFragment extends Fragment {
                 bitmapImage2 = BitmapFactory.decodeFile(picturePath);
 
                 // Cria a matriz do bitmap criado
-                Utils.bitmapToMat(bitmapImage2, matImage2);
+                Utils.bitmapToMat(bitmapImage2, matImage2BW);
+                Utils.bitmapToMat(bitmapImage2, matImage2Normal);
 
                 // Transforma a imagem em escala de cinza
-                Imgproc.cvtColor(matImage2, matImage2, Imgproc.COLOR_RGB2GRAY);
+                Imgproc.cvtColor(matImage2BW, matImage2BW, Imgproc.COLOR_RGB2GRAY);
+                Imgproc.cvtColor(matImage2Normal, matImage2Normal, Imgproc.COLOR_RGB2GRAY);
 
-                // Reconverte a matriz binaria para bitmap
-                Utils.matToBitmap(matImage2, bitmapImage2);
+                // Transforma a matriz para binaria
+                Imgproc.threshold(matImage2BW, matImage2BW, 127, 255, Imgproc.THRESH_BINARY);
 
                 // Exibe o bitmap binario
                 imgImage2.setImageBitmap(bitmapImage2);
@@ -189,8 +194,8 @@ public class OperationFragment extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (bitmapImage1 == null || bitmapImage2 == null ||
-                                matImage1.size().height != matImage2.size().height ||
-                                matImage1.size().width != matImage2.size().width) {
+                                matImage1BW.size().height != matImage2BW.size().height ||
+                                matImage1BW.size().width != matImage2BW.size().width) {
                             new AlertDialog.Builder(getContext())
                                     .setTitle("Atenção")
                                     .setMessage("Você precisa selecionar duas imagens de mesma resolucao para executar a operação")
@@ -198,17 +203,17 @@ public class OperationFragment extends Fragment {
                                     .show();
                         } else {
                             // Copia a matriz da imagem1 para copiar as proporcoes (linhas x colunas)
-                            matImage1.copyTo(matResult);
+                            matImage1BW.copyTo(matResult);
 
                             // Executa a operacao selecionada
                             if (which == 0) {
-                                Core.bitwise_and(matImage1, matImage2, matResult);
+                                Core.bitwise_and(matImage1BW, matImage2BW, matResult);
                             } else if (which == 1) {
-                                Core.bitwise_or(matImage1, matImage2, matResult);
+                                Core.bitwise_or(matImage1BW, matImage2BW, matResult);
                             } else if (which == 2) {
-                                Core.bitwise_xor(matImage1, matImage2, matResult);
+                                Core.bitwise_xor(matImage1BW, matImage2BW, matResult);
                             } else if (which == 3) {
-                                Core.bitwise_not(matImage1, matResult);
+                                Core.bitwise_not(matImage1BW, matResult);
                             }
 
                             // Exibe o nome da operacao
@@ -236,8 +241,8 @@ public class OperationFragment extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (bitmapImage1 == null || bitmapImage2 == null ||
-                                matImage1.size().height != matImage2.size().height ||
-                                matImage1.size().width != matImage2.size().width) {
+                                matImage1Normal.size().height != matImage2Normal.size().height ||
+                                matImage1Normal.size().width != matImage2Normal.size().width) {
                             new AlertDialog.Builder(getContext())
                                     .setTitle("Atenção")
                                     .setMessage("Você precisa selecionar duas imagens de mesma resolucao para executar a operação")
@@ -245,17 +250,17 @@ public class OperationFragment extends Fragment {
                                     .show();
                         } else {
                             // Copia a matriz da imagem1 para copiar as proporcoes (linhas x colunas)
-                            matImage1.copyTo(matResult);
+                            matImage1Normal.copyTo(matResult);
 
                             // Executa a operacao selecionada
                             if (which == 0) {
-                                Core.addWeighted(matImage1, 0.5,matImage2, 0.5, 0.0,matResult);
+                                Core.addWeighted(matImage1Normal, 0.5, matImage2Normal, 0.5, 0.0,matResult);
                             } else if (which == 1) {
-                                Core.subtract(matImage1, matImage2, matResult);
+                                Core.subtract(matImage1Normal, matImage2Normal, matResult);
                             } else if (which == 2) {
-                                Core.multiply(matImage1, matImage2, matResult);
+                                Core.multiply(matImage1Normal, matImage2Normal, matResult);
                             } else if (which == 3) {
-                                Core.divide(matImage1, matImage2, matResult);
+                                Core.divide(matImage1Normal, matImage2Normal, matResult);
                             }
 
                             // Exibe o nome da operacao
