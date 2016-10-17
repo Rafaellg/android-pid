@@ -7,7 +7,8 @@ android:layout_width="match_parent"
 android:layout_height="match_parent"
 tools:context="com.rafaelguimas.pid.FilterFragment"
 android:padding="8dp"
-android:orientation="vertical">
+android:orientation="vertical"
+android:background="@color/colorBG">
 
 <LinearLayout
     android:layout_width="match_parent"

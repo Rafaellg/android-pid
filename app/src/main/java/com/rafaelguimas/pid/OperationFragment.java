@@ -132,6 +132,9 @@ public class OperationFragment extends Fragment {
                 // Transforma a matriz para binaria
                 Imgproc.threshold(matImage1BW, matImage1BW, 127, 255, Imgproc.THRESH_BINARY);
 
+                // Reconverte a imagem binaria para bitmap
+//                Utils.matToBitmap(matImage1BW, bitmapImage1);
+
                 // Exibe o bitmap colorido
                 imgImage1.setImageBitmap(bitmapImage1);
 
@@ -149,6 +152,9 @@ public class OperationFragment extends Fragment {
 
                 // Transforma a matriz para binaria
                 Imgproc.threshold(matImage2BW, matImage2BW, 127, 255, Imgproc.THRESH_BINARY);
+
+                // Reconverte a imagem binaria para bitmap
+//                Utils.matToBitmap(matImage2BW, bitmapImage2);
 
                 // Exibe o bitmap binario
                 imgImage2.setImageBitmap(bitmapImage2);
@@ -254,7 +260,7 @@ public class OperationFragment extends Fragment {
 
                             // Executa a operacao selecionada
                             if (which == 0) {
-                                Core.addWeighted(matImage1Normal, 0.5, matImage2Normal, 0.5, 0.0,matResult);
+                                Core.addWeighted(matImage1Normal, 0.5, matImage2Normal, 0.5, 0.0, matResult);
                             } else if (which == 1) {
                                 Core.subtract(matImage1Normal, matImage2Normal, matResult);
                             } else if (which == 2) {

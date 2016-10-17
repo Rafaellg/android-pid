@@ -5,7 +5,8 @@
     tools:context="com.rafaelguimas.pid.MainFragment"
     android:orientation="vertical"
     android:gravity="center"
-    android:padding="8dp">
+    android:padding="8dp"
+    android:background="@color/colorBG">
 
 
     <TextView
