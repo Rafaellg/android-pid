@@ -62,7 +62,7 @@ public class CoinFragment extends Fragment {
             }
         });
 
-        test();
+        processBitmaps("/storage/emulated/0/Download/photo_2016-11-02_13-05-55 (2).jpg");
 
         return view;
     }
@@ -71,66 +71,26 @@ public class CoinFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == RESULT_OK && null != data) {
-            // Recupera o caminho da imagem selecionada
-            Uri selectedImage = data.getData();
-            String[] filePathColumn = { MediaStore.Images.Media.DATA };
-            Cursor cursor = getActivity().getContentResolver().query(selectedImage,filePathColumn, null, null, null);
-            cursor.moveToFirst();
-            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-            String picturePath = cursor.getString(columnIndex);
-            cursor.close();
-
-            // Cria e exibe o bitmap com a imagem selecionada
+        if (resultCode == RESULT_OK) {
             if (requestCode == RESULT_LOAD_IMAGE) {
-                Bitmap bitmapImageOriginal = BitmapFactory.decodeFile(picturePath);
-                Bitmap bitmapImageResult = BitmapFactory.decodeFile(picturePath);
-                Mat matImage = new Mat();
+                // Recupera o caminho da imagem selecionada
+                Uri selectedImage = data.getData();
+                String[] filePathColumn = { MediaStore.Images.Media.DATA };
+                Cursor cursor = getActivity().getContentResolver().query(selectedImage,filePathColumn, null, null, null);
+                cursor.moveToFirst();
+                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                String picturePath = cursor.getString(columnIndex);
+                cursor.close();
 
-                // Exibe a imagem original
-                imgOriginal.setImageBitmap(bitmapImageOriginal);
-
-                // Cria a matriz do bitmap criado
-                Utils.bitmapToMat(bitmapImageOriginal, matImage);
-
-                // Transforma a imagem em escala de cinza
-                Imgproc.cvtColor(matImage, matImage, Imgproc.COLOR_RGB2GRAY);
-
-                // Aplica o filtro gaussiano
-                Imgproc.GaussianBlur(matImage, matImage, new Size(5,5), 0);
-
-                // Transforma a matriz para binaria
-                Imgproc.threshold(matImage, matImage, 127, 255, Imgproc.THRESH_BINARY);
-
-                Mat cannyEdges = new Mat();
-                Imgproc.Canny(matImage, cannyEdges, 40, 100);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                // Reconverte a imagem binaria para bitmap
-                Utils.matToBitmap(cannyEdges, bitmapImageResult);
-
-                // Exibe o bitmap final
-                imgResult.setImageBitmap(bitmapImageResult);
+                // Cria e exibe o bitmap com a imagem selecionada
+                processBitmaps(picturePath); // "/storage/emulated/0/Download/photo_2016-11-02_13-05-56.jpg"
             }
         }
     }
 
-    public void test() {
-        Bitmap bitmapImageOriginal = BitmapFactory.decodeFile("/storage/emulated/0/Download/photo_2016-11-02_13-05-57.jpg");
-        Bitmap bitmapImageResult = BitmapFactory.decodeFile("/storage/emulated/0/Download/photo_2016-11-02_13-05-57.jpg");
+    public void processBitmaps(String picturePath) {
+        Bitmap bitmapImageOriginal = BitmapFactory.decodeFile(picturePath);
+        Bitmap bitmapImageResult = BitmapFactory.decodeFile(picturePath);
         Mat matImage = new Mat();
         Mat matImageGray = new Mat();
 
@@ -144,10 +104,10 @@ public class CoinFragment extends Fragment {
         Imgproc.cvtColor(matImage, matImageGray, Imgproc.COLOR_RGB2GRAY);
 
         // Aplica o filtro gaussiano
-        Imgproc.GaussianBlur(matImageGray, matImageGray, new Size(5,5), 0);
+        Imgproc.GaussianBlur(matImageGray, matImageGray, new Size(5,5), 5);
 
         // Transforma a matriz para binaria
-        Imgproc.threshold(matImageGray, matImageGray, 155, 255, Imgproc.THRESH_BINARY);
+        Imgproc.threshold(matImageGray, matImageGray, 145, 255, Imgproc.THRESH_BINARY);
 
         // Canny
         Mat cannyEdges = new Mat();
@@ -155,11 +115,11 @@ public class CoinFragment extends Fragment {
 
         // Hough
         Mat circles = new Mat();
-        int sensibilidade = 4;
+        double sensibilidade = 3;
         int minDist = 10;
-        int minRadius = 0;
+        int minRadius = 15;
         int maxRadius = 40;
-        Imgproc.HoughCircles(cannyEdges, circles, CV_HOUGH_GRADIENT, sensibilidade, minDist, 20, 100, minRadius, maxRadius);
+        Imgproc.HoughCircles(cannyEdges, circles, CV_HOUGH_GRADIENT, sensibilidade, cannyEdges.rows()/8, 200, 75, minRadius, maxRadius);
         Toast.makeText(getContext(), "Círculos: " + circles.cols(), Toast.LENGTH_LONG).show();
 
         // Coloca os circulos na imagem original
@@ -168,14 +128,16 @@ public class CoinFragment extends Fragment {
             double x, y;
             int r;
 
+            // Recupera os valores da circunferencia
             x = Math.round(parameters[0]);
             y = Math.round(parameters[1]);
             r = (int) Math.round(parameters[2]);
-
             Point center = new Point(x, y);
 
-//            Imgproc.circle(houghCircles, center, 3, new Scalar(0, 255, 0), -1, 8, 0);
+            // Desenha o centro
+            Imgproc.circle(matImage, center, 3, new Scalar(0, 255, 0), -1, 8, 0);
 
+            // Desenha o circulo
             Imgproc.circle(matImage, center, r, new Scalar(0, 0, 255), 3);
         }
 
@@ -185,11 +147,9 @@ public class CoinFragment extends Fragment {
         // Exibe o bitmap final
         imgResult.setImageBitmap(bitmapImageResult);
 
-
-
         // teste ------------------------------------
         // Cria a matriz do bitmap criado
-        Utils.matToBitmap(matImageGray, bitmapImageOriginal);
+        Utils.matToBitmap(cannyEdges, bitmapImageOriginal);
 
         // Exibe a imagem original
         imgOriginal.setImageBitmap(bitmapImageOriginal);
