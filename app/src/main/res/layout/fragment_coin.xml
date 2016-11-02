@@ -16,7 +16,7 @@
         android:padding="8dp">
 
         <TextView
-            android:text="Imagem A"
+            android:text="Imagem Original"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/textView"
@@ -24,7 +24,7 @@
             android:layout_weight="1" />
 
         <ImageView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="185dp"
             android:id="@+id/imgOriginal"
             android:layout_weight="1"
@@ -37,12 +37,12 @@
             android:id="@+id/txtResult"
             android:layout_marginBottom="8dp"
             android:text="Resultado"
-            android:layout_marginTop="32dp" />
+            android:layout_marginTop="8dp" />
 
         <ImageView
             android:id="@+id/imgResult"
             android:layout_height="185dp"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             app:srcCompat="@drawable/img_default" />
 
         <LinearLayout
