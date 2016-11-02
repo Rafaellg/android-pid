@@ -25,6 +25,7 @@ public class MainFragment extends Fragment {
 
         Button btnOperations = (Button) view.findViewById(R.id.btnOperations);
         Button btnFilters = (Button) view.findViewById(R.id.btnFilters);
+        Button btnCoins = (Button) view.findViewById(R.id.btnCoins);
 
         btnOperations.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -45,6 +46,18 @@ public class MainFragment extends Fragment {
                         .getSupportFragmentManager()
                         .beginTransaction()
                         .replace(R.id.container, new FilterFragment())
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
+
+        btnCoins.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity()
+                        .getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.container, new CoinFragment())
                         .addToBackStack(null)
                         .commit();
             }
