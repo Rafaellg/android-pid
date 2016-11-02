@@ -160,7 +160,7 @@ public class CoinFragment extends Fragment {
         int minRadius = 0;
         int maxRadius = 40;
         Imgproc.HoughCircles(cannyEdges, circles, CV_HOUGH_GRADIENT, sensibilidade, minDist, 20, 100, minRadius, maxRadius);
-        Toast.makeText(getContext(), "Circles: " + circles.cols(), Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(), "Círculos: " + circles.cols(), Toast.LENGTH_LONG).show();
 
         // Coloca os circulos na imagem original
         for (int i = 0; i < circles.cols(); i++) {
@@ -176,7 +176,7 @@ public class CoinFragment extends Fragment {
 
 //            Imgproc.circle(houghCircles, center, 3, new Scalar(0, 255, 0), -1, 8, 0);
 
-            Imgproc.circle(matImage, center, r, new Scalar(255, 0, 0), 1);
+            Imgproc.circle(matImage, center, r, new Scalar(0, 0, 255), 3);
         }
 
         // Reconverte a imagem binaria para bitmap
